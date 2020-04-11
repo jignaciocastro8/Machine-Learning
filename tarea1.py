@@ -101,6 +101,6 @@ def plotModelo(rho):
 #plotData()
 #plotParam()
 #plotModelo(2)
-plotEcmVar()
+#plotEcmVar()
 
 
