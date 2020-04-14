@@ -87,20 +87,21 @@ def plotEcmVar():
     plt.plot(x, arrEcm, "*")
     plt.show()
     
-def plotModelo(rho):
-    a = reg_lineal(X, Y, rho)[0] #Optimizar
-    b = reg_lineal(X, Y, rho)[1]
-    #Prediciones:
-    yGorro = []
-    for x in X:
-        yGorro.append(a*x + b)  
-    plt.plot(X, Y, "*")
-    plt.plot(X, yGorro)
+def plotModelo():
+    p = 11
+    for rho in np.arange(p):
+        a = reg_lineal(xEnt, yEnt, rho)[0] #Optimizar
+        b = reg_lineal(xEnt, yEnt, rho)[1]
+        yGorro = []
+        for x in xEnt:
+            yGorro.append(a*x + b) 
+        plt.plot(xEnt, yGorro)
+    plt.plot(X, Y, "*") 
     plt.show()
 
 #plotData()
 #plotParam()
-#plotModelo(2)
 #plotEcmVar()
+plotModelo()
 
 
