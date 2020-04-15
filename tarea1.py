@@ -14,6 +14,9 @@ yVal = data[data["In Sample"] == 0]["Price"]
 
 
 def plotData():
+    """
+    Plotea los dato.
+    """
     plt.plot(xEnt/10000, yEnt/100000, "*", label="Entrentamiento")
     plt.plot(xVal/10000, yVal/100000, "*", label="Validación")
     plt.legend(loc='upper left', shadow=True, fontsize='10')
@@ -25,21 +28,28 @@ def plotData():
 
 def reg_lineal(X,Y,rho):
     """
-    in:
-    out:
+    Implementa el método de mínimos cuadrados regularizados y retorna estas estimaciones 
+    como un arreglo theta.
+    param X: DataFrame de una columna.
+    param Y: DataFrame de una columna.
+    param rho: Double.
+    output theta: Arreglo 1D. 
     """
+    #Transforma los DataFrame en numpy arrays.
     X = np.array(X).reshape(len(X), 1)
     Y = np.array(Y).reshape(len(Y), 1)
     unos = np.ones(len(X)).reshape(len(X),1)
     xTilda = np.concatenate([X, unos], 1)
     I = np.identity(2)
+    #Calcula theta.
     theta = np.linalg.inv(np.dot(xTilda.transpose(), xTilda) + rho * I)
     theta = np.dot(theta, np.dot(xTilda.transpose(), Y))
     return theta
     
 def plotParam():
     """
-    Usa datos de entrenamiento para obtener parámetros.
+    Usa datos de entrenamiento para obtener parámetros. Plotea los parámetros de mínimos cuadrados
+    regularizados en función de rho.
     """
     p = 10 #Valores de rho.
     x = np.arange(p + 1)
@@ -49,14 +59,16 @@ def plotParam():
         a.append(reg_lineal(xEnt, yEnt, rho)[0])
         b.append(reg_lineal(xEnt, yEnt, rho)[1])
     plt.plot(x, a, "*")
-    plt.title("Parámetros vs rho")
-    plt.xlabel("Rho")
-    plt.ylabel("Parámetro a")
+    plt.title(r"$Pendiente\ vs\ \rho$")
+    plt.xlabel(r"$\rho$")
+    plt.ylabel("$Pendiente$")
+    plt.grid()
     plt.show()
-    plt.plot(x, b, "*")
-    plt.title("Parámetros vs rho")
-    plt.xlabel("Rho")
-    plt.ylabel("Parámetro b")
+    plt.plot(x, np.array(b)/100000, "*")
+    plt.title(r'$Coeficiente\ de\ posición\ vs\ \rho$')
+    plt.xlabel(r"$\rho$")
+    plt.ylabel("$Coeficiente\ de\ posición\ 10^{5}$")
+    plt.grid()
     plt.show()
 
 def ecm(x,y,theta):
@@ -84,18 +96,19 @@ def plotEcmVar():
     
 def plotModelo():
     p = 11
+    # Calcular parámetros con datos de entrenamiento.
     for rho in np.arange(p):
         a = reg_lineal(xEnt, yEnt, rho)[0] #Optimizar
         b = reg_lineal(xEnt, yEnt, rho)[1]
-        yGorro = []
+        yGorro = [] # Vector de predicciones.
         for x in xEnt:
             yGorro.append(a*x + b) 
         plt.plot(xEnt, yGorro)
     plt.plot(X, Y, "*") 
     plt.show()
 
-plotData()
-#plotParam()
+#plotData()
+plotParam()
 #plotEcmVar()
 #plotModelo()
 
