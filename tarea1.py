@@ -5,27 +5,22 @@ import matplotlib.pyplot as plt
 data = pd.read_csv("T1_Housing.csv") 
 X = data["Avg Area Income"]
 Y = data["Price"]
+# Entrenamiento.
 xEnt = data[data["In Sample"] == 1]["Avg Area Income"]
 yEnt = data[data["In Sample"] == 1]["Price"]
+# Validación.
 xVal = data[data["In Sample"] == 0]["Avg Area Income"]
 yVal = data[data["In Sample"] == 0]["Price"]
 
 
 def plotData():
-    plt.plot(X, Y, "*")
-    plt.title("Todos los datos")
-    plt.xlabel("Ingreso promedio")
-    plt.ylabel("Precio de las casas")
-    plt.show()
-    plt.plot(xEnt, yEnt, "*")
-    plt.title("Datos de entrenamiento")
-    plt.xlabel("Ingreso promedio")
-    plt.ylabel("Precio de las casas")
-    plt.show()
-    plt.plot(xVal, yVal, "*")    
-    plt.title("Datos de validación")
-    plt.xlabel("Ingreso promedio")
-    plt.ylabel("Precio de las casas")
+    plt.plot(xEnt/10000, yEnt/100000, "*", label="Entrentamiento")
+    plt.plot(xVal/10000, yVal/100000, "*", label="Validación")
+    plt.legend(loc='upper left', shadow=True, fontsize='10')
+    plt.title("Price vs average income")
+    plt.xlabel("$Average\ income\ 10^4$")
+    plt.ylabel("$Price\ 10^5$")
+    plt.grid()
     plt.show()
 
 def reg_lineal(X,Y,rho):
@@ -99,9 +94,9 @@ def plotModelo():
     plt.plot(X, Y, "*") 
     plt.show()
 
-#plotData()
+plotData()
 #plotParam()
 #plotEcmVar()
-plotModelo()
+#plotModelo()
 
 
