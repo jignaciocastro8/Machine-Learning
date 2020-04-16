@@ -73,11 +73,11 @@ def plotParam():
 
 def ecm(x,y,theta):
     """
-    Calcula el error cuadrático medio.
-    in y: 1D DataFrame con los valores de salida observados.
-    in x: 1D DataFrame con los valores de entrada observados. len(x) = len(y).
-    in theta: 1D array con los parámetros del modelo.
-    out ecm: Double. Error cuadrático medio.
+    Calcula el error cuadrático medio entre theta^Tx e y.
+    param y: 1D DataFrame.
+    param x: 1D DataFrame. len(x) = len(y).
+    param theta: 1D array con los parámetros del modelo.
+    output ecm: Double.
     """
     a, b = theta
     x = np.array(x)
@@ -86,13 +86,26 @@ def ecm(x,y,theta):
     return ecm
 
 def plotEcmVar():
+    """
+    Plotea el ecm y la varianza de la estimación en función de rho.
+    """
     p = 10
     x = np.arange(p + 1)
-    arrEcm = []
+    # Se calcula y plotea el ecm asociado a cada rho para entrenamiento y validación.
+    arrEcmEnt = []
+    arrEcmVal = []
     for rho in x:
-        arrEcm.append(ecm(xEnt, yEnt, reg_lineal(xEnt, yEnt, rho)))
-    plt.plot(x, arrEcm, "*")
+        arrEcmEnt.append(ecm(xEnt, yEnt, reg_lineal(xEnt, yEnt, rho)))
+        arrEcmVal.append(ecm(xVal, yVal, reg_lineal(xEnt, yEnt, rho)))
+    plt.plot(x, arrEcmEnt, "*", label="Entrenamiento")
+    plt.plot(x, arrEcmVal, "*", label="Validación")
+    plt.title(r"$Error\ cuadrático\ medio\ (ecm)\ vs\ \rho$")
+    plt.xlabel(r"$\rho$")
+    plt.ylabel(r"$ecm$")
+    plt.legend(loc='upper right')
+    plt.grid()
     plt.show()
+    # Se calcula y plotea el ecm asociado a cada rho.
     
 def plotModelo():
     p = 11
@@ -108,8 +121,8 @@ def plotModelo():
     plt.show()
 
 #plotData()
-plotParam()
-#plotEcmVar()
+#plotParam()
+plotEcmVar()
 #plotModelo()
 
 
