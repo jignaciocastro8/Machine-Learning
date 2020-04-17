@@ -125,7 +125,8 @@ def plotModelo():
 #plotEcmVar()
 #plotModelo()
 
-"""Cambio para probar funcinamiento de las ramas en git"""
+"""Cambio para probar funcionamiento de las ramas en git"""
 """Otro cambio para probar funcinamiento de las ramas en git"""
+"""Cambio test 1"""
 
 
