@@ -85,13 +85,13 @@ def ecm(x,y,theta):
     ecm = (1/len(x)) * sum((y[i] - a*x[i] - b)**2 for i in np.arange(len(y)))
     return ecm
 
-def plotEcmVar():
+def plotEcm():
     """
-    Plotea el ecm y la varianza de la estimación en función de rho.
+    Plotea el ecm de la estimación en función de rho.
     """
     p = 10
     x = np.arange(p + 1)
-    # Se calcula y plotea el ecm asociado a cada rho para entrenamiento y validación.
+    # Se calcula y plotea el ecm c/r a rho para entrenamiento y validación.
     arrEcmEnt = []
     arrEcmVal = []
     for rho in x:
@@ -105,22 +105,52 @@ def plotEcmVar():
     plt.legend(loc='upper right')
     plt.grid()
     plt.show()
-    # Se calcula y plotea el ecm asociado a cada rho.
+ 
+def plotVar():
+    """
+    Plotea la de la estimación en función de rho.
+    """
+    p = 10
+    x = np.arange(p + 1)
+    # Se calcula y plotea la varianza c/r a rho para entrenamiento y validación.
+    arrVarEnt = []
+    arrVarVal = []
+    for rho in x:
+        print("Hola")
+    plt.plot(x, arrVarEnt, "*", label="Entrenamiento")
+    plt.plot(x, arrVarVal, "*", label="Validación")
+    plt.title(r"$Varianza\ vs\ \rho$")
+    plt.xlabel(r"$\rho$")
+    plt.ylabel(r"$Varianza$")
+    plt.legend(loc='upper right')
+    plt.grid()
+    plt.show()
     
 def plotModelo():
+    """
+    Plotea las rectas asociadas a cada rho junto con los datos de validación y entrenamiento.
+    """
     p = 11
     # Calcular parámetros con datos de entrenamiento.
-    for rho in np.arange(p):
-        a = reg_lineal(xEnt, yEnt, rho)[0] #Optimizar
-        b = reg_lineal(xEnt, yEnt, rho)[1]
-        yGorro = [] # Vector de predicciones.
-        for x in xEnt:
-            yGorro.append(a*x + b) 
-        plt.plot(xEnt, yGorro)
-    plt.plot(X, Y, "*") 
+    xMax = max(max(xEnt), max(xVal))
+    xMin = min(min(xEnt), min(xVal))
+    xArr = np.array([xMin, xMax]) # Como son rectas bastan dos puntos.
+    for rho in np.arange(0, p, 2):
+        a, b = reg_lineal(xEnt, yEnt, rho)
+        yArr = [] # Vector de predicciones.
+        for x in xArr:
+            yArr.append(a*x + b) 
+        plt.plot(xArr/10000, np.array(yArr)/100000, label=r"$\rho\ =$" + str(rho))
+    plt.plot(xEnt/10000, yEnt/100000, '*', label=r"$Entrenamiento$")
+    plt.plot(xVal/10000, yVal/100000, '*', label=r"$Validación$")
+    plt.title(r"$Rectas\ del\ modelo\ para\ distintos\ valores\ de\ \rho$")
+    plt.ylabel(r"$Price\ 10^{5}$")
+    plt.xlabel(r"$Average\ income\ 10^{4}$")
+    plt.legend()
+    plt.grid()
     plt.show()
 
 #plotData()
 #plotParam()
 #plotEcmVar()
-#plotModelo()
+plotModelo()
