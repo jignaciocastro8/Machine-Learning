@@ -46,30 +46,42 @@ def reg_lineal(X,Y,rho):
     theta = np.dot(theta, np.dot(xTilda.transpose(), Y))
     return theta
     
-def plotParam():
+def plotParam(flag = 1):
     """
     Usa datos de entrenamiento para obtener parámetros. Plotea los parámetros de mínimos cuadrados
     regularizados en función de rho.
     """
+
     p = 10 #Valores de rho.
     x = np.arange(p + 1)
     a = []
     b = []
+    fig, ax = plt.subplots()
     for rho in x:
-        a.append(reg_lineal(xEnt, yEnt, rho)[0])
-        b.append(reg_lineal(xEnt, yEnt, rho)[1])
-    plt.plot(x, a, "*")
-    plt.title(r"$Pendiente\ vs\ \rho$")
-    plt.xlabel(r"$\rho$")
-    plt.ylabel("$Pendiente$")
+        aux = reg_lineal(xEnt, yEnt, rho)
+        a.append(aux[0])
+        b.append(aux[1])
+        plt.plot(aux[0], aux[1]/100000, '*', label=r"$\rho = $" + str(rho))
+    plt.title(r"$Parámetros\ en\ R^{2}$")
+    plt.xlabel(r"$Pendiente$")
+    plt.ylabel(r"$Coeficiente\ de\ posición\ 10^{5}$")
+    plt.xlim([0, 50])
+    plt.legend()
     plt.grid()
     plt.show()
-    plt.plot(x, np.array(b)/100000, "*")
-    plt.title(r'$Coeficiente\ de\ posición\ vs\ \rho$')
-    plt.xlabel(r"$\rho$")
-    plt.ylabel("$Coeficiente\ de\ posición\ 10^{5}$")
-    plt.grid()
-    plt.show()
+    if flag != 1:
+        plt.plot(x, a, "*")
+        plt.title(r"$Pendiente\ vs\ \rho$")
+        plt.xlabel(r"$\rho$")
+        plt.ylabel("$Pendiente$")
+        plt.grid()
+        plt.show()
+        plt.plot(x, np.array(b)/100000, "*")
+        plt.title(r'$Coeficiente\ de\ posición\ vs\ \rho$')
+        plt.xlabel(r"$\rho$")
+        plt.ylabel("$Coeficiente\ de\ posición\ 10^{5}$")
+        plt.grid()
+        plt.show()
 
 def ecm(x,y,theta):
     """
@@ -150,7 +162,10 @@ def plotModelo():
     plt.grid()
     plt.show()
 
+def estimarSigma(rho):
+    a, b = reg_lineal(xEnt, yEnt, rho)
+
 #plotData()
-#plotParam()
+plotParam()
 #plotEcmVar()
-plotModelo()
+#plotModelo()
