@@ -50,26 +50,40 @@ def plotParam(flag = 1):
     """
     Usa datos de entrenamiento para obtener parámetros. Plotea los parámetros de mínimos cuadrados
     regularizados en función de rho.
+    param flag: 
     """
 
     p = 10 #Valores de rho.
     x = np.arange(p + 1)
     a = []
     b = []
-    fig, ax = plt.subplots()
+    normas = []
+    print("Norma de los parámetro obtenidos con MSR y datos de entrenamiento")
     for rho in x:
         aux = reg_lineal(xEnt, yEnt, rho)
+        normas.append(np.sqrt(aux[0]**2 + aux[1]**2))
         a.append(aux[0])
         b.append(aux[1])
-        plt.plot(aux[0], aux[1]/100000, '*', label=r"$\rho = $" + str(rho))
-    plt.title(r"$Parámetros\ en\ R^{2}$")
-    plt.xlabel(r"$Pendiente$")
-    plt.ylabel(r"$Coeficiente\ de\ posición\ 10^{5}$")
-    plt.xlim([0, 50])
-    plt.legend()
-    plt.grid()
-    plt.show()
-    if flag != 1:
+        #Print de las normas
+        print("rho = " + str(rho) + ": " + str(np.sqrt(aux[0]**2 + aux[1]**2)[0]))
+    if flag == 1:
+        for i in x:
+            plt.plot(a[i], b[i]/100000, '*', label=r"$\rho = $" + str(i))
+        plt.title(r"$Parámetros\ en\ R^{2}$")
+        plt.xlabel(r"$Pendiente$")
+        plt.ylabel(r"$Coeficiente\ de\ posición\ 10^{5}$")
+        plt.xlim([0, 50])
+        plt.legend()
+        plt.grid()
+        plt.show()
+    elif flag == 2:
+        plt.plot(x, np.array(normas)/100000,'o', color='y')
+        plt.xlabel(r"$\rho$")
+        plt.ylabel(r"$Norma\ en\ \mathbb{R}^2\ 10^5$")
+        plt.title("Norma del parámetro " + r"$\theta$")
+        plt.grid()
+        plt.show()
+    elif flag == 3:
         plt.plot(x, a, "*")
         plt.title(r"$Pendiente\ vs\ \rho$")
         plt.xlabel(r"$\rho$")
@@ -101,7 +115,7 @@ def plotEcm():
     """
     Plotea el ecm de la estimación en función de rho.
     """
-    p = 10
+    p = 50
     x = np.arange(p + 1)
     # Se calcula y plotea el ecm c/r a rho para entrenamiento y validación.
     arrEcmEnt = []
@@ -109,34 +123,69 @@ def plotEcm():
     for rho in x:
         arrEcmEnt.append(ecm(xEnt, yEnt, reg_lineal(xEnt, yEnt, rho)))
         arrEcmVal.append(ecm(xVal, yVal, reg_lineal(xEnt, yEnt, rho)))
-    plt.plot(x, arrEcmEnt, "*", label="Entrenamiento")
-    plt.plot(x, arrEcmVal, "*", label="Validación")
+    plt.plot(x, arrEcmEnt, label="Entrenamiento")
+    plt.plot(x, arrEcmVal, label="Validación")
     plt.title(r"$Error\ cuadrático\ medio\ (ecm)\ vs\ \rho$")
     plt.xlabel(r"$\rho$")
     plt.ylabel(r"$ecm$")
-    plt.legend(loc='upper right')
+    plt.legend(loc='center right')
     plt.grid()
     plt.show()
  
+def estimarSigma():
+    """
+    Entrega la estimación de sigma^2 en base a los datos de entrenamiento con un estimador insesgado.
+    """
+    x = np.array(xEnt)
+    y = np.array(yEnt)
+    N = len(x)
+    M = np.size(x[0]) # Dimensión de los datos x's.
+    a, b = reg_lineal(x, y, 0)
+    sigmaGorro = ( 1 / (N - (M + 1)) ) * sum( (y[i] - a*x[i] - b)**2 for i in np.arange(len(x)))
+    return sigmaGorro
+
 def plotVar():
     """
-    Plotea la de la estimación en función de rho.
+    Plotea el promedio de las varianzas sobre los datos vs rho. 
     """
+    # Se calcula término que acompaña a sigma^2 en la varianza.
+    N = len(xEnt)
+    arrX = np.array(xEnt).reshape(N, 1)
+    arrY = np.array(yEnt).reshape(N, 1)
+    unos = np.ones(N).reshape(N,1)
+    xTilda = np.concatenate([arrX, unos], 1)
+    XTildaTrans = xTilda.transpose()
+    XtX = np.dot(xTilda.transpose(), xTilda)
+    I = np.identity(2)
+    # Se calcula y plotea la varianza c/r a rho para el dato input unDato.
+    sigma2 = estimarSigma()
     p = 10
     x = np.arange(p + 1)
-    # Se calcula y plotea la varianza c/r a rho para entrenamiento y validación.
-    arrVarEnt = []
-    arrVarVal = []
+    promEnt = []
+    promVal = []
     for rho in x:
-        print("Hola")
-    plt.plot(x, arrVarEnt, "*", label="Entrenamiento")
-    plt.plot(x, arrVarVal, "*", label="Validación")
-    plt.title(r"$Varianza\ vs\ \rho$")
+        suma = 0
+        for unDato in xEnt:
+            aux = np.linalg.inv(XtX + rho * I)
+            aux = np.dot(aux, XTildaTrans)
+            suma = suma + np.linalg.norm(np.dot(unDato, aux))**2
+        promEnt.append(sigma2 * suma * (1/len(xEnt)))
+        suma = 0
+        for unDato in xVal:
+            aux = np.linalg.inv(XtX + rho * I)
+            aux = np.dot(aux, XTildaTrans)
+            suma = suma + np.linalg.norm(np.dot(unDato, aux))**2
+        promVal.append(sigma2 * suma * (1/len(xVal)))
+    plt.plot(x, promEnt, 'o', label='Entrenamiento', color='g')
+    plt.plot(x, promVal, 'x', label='Validación', color='y')
+    plt.title("Varianza promedio de las estimaciones")
     plt.xlabel(r"$\rho$")
-    plt.ylabel(r"$Varianza$")
+    plt.ylabel(r"$Varianza\ promedio$")
     plt.legend(loc='upper right')
     plt.grid()
     plt.show()
+
+
     
 def plotModelo():
     """
@@ -162,10 +211,33 @@ def plotModelo():
     plt.grid()
     plt.show()
 
-def estimarSigma(rho):
-    a, b = reg_lineal(xEnt, yEnt, rho)
+def plotTheta():
+    """
+    Plotea el parámetro theta obtenido con MS para datos de validación y entrenamiento.
+    """
+    arrEnt = reg_lineal(xEnt, yEnt, 0)
+    arrVal = reg_lineal(xVal, yVal, 0)
+    print("CON DATOS DE ENTRENAMIENTO: ")
+    print("Pendiente: " + str(arrEnt[0]))
+    print("Coef. posición: " + str(arrEnt[1]))
+    print("Norma: "+ str(np.linalg.norm(arrEnt)))
+    print("CON DATOS DE VALIDACIÓN: ")
+    print("Pendiente: " + str(arrVal[0]))
+    print("Coef. posición: " + str(arrVal[1]))
+    print("Norma: "+ str(np.linalg.norm(arrVal)))
+    plt.plot(arrEnt[0], arrEnt[1], 'o', label='Entrenamiento')
+    plt.plot(arrVal[0], arrVal[1], 'o', label='Validación')
+    plt.title("Parámetro MS con ambos set de datos")
+    plt.ylabel("Coficiente de posición")
+    plt.xlabel("Pendiente")
+    plt.xlim([0,100])
+    plt.grid()
+    plt.show()
 
+
+plotTheta()
 #plotData()
-plotParam()
-#plotEcmVar()
+#plotParam(2)
+#plotEcm()
+#plotVar()
 #plotModelo()
