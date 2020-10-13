@@ -1,2 +1,2 @@
 # **Repo ML**
-Cosas Machine Learning.
+Repositorio con informes y códigos de tareas de Machine Learning.
